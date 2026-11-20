@@ -1,6 +1,6 @@
 [package]
 name = "rust-widget"
-version = "2.33.2"
+version = "2.33.3"
 edition = "2021"
 publish = false
 

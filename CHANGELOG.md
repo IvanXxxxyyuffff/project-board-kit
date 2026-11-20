@@ -1,8 +1,58 @@
+## v2.33.3 — 2026-11-20
+
+# v2.33.3
+
+这一版只做一件事：把「泄露」这件事从「靠人记得跑」变成「CI 每次必跑」，并修掉上一版发布时暴露的两个链路缺陷。不改数据链路、不改看板外观。
+
+## 1. 通用秘密扫描进 CI
+
+新增 `scripts/secret_scan.py`，纯标准库、不需要任何私有词表，因此可以直接挂在公开仓的 CI 上：
+
+- 厂商令牌（`ghp_` / `github_pat_` / `AKIA` / `xox[baprs]-` / `AIza`）、私钥块、JWT；
+- 本工程最敏感的一类：企微文档 cookie 名（`wedoc_sid` / `wedoc_skey` / `tdoc_uid` 等）带赋值、长 cookie 串、`Authorization: Basic/Bearer` 实体值；
+- 内网地址（`10.x` / `192.168.x` / `172.16-31.x`）、`*.weaver.com.cn` 主机；
+- 本机痕迹（`<ROOT>\<名>`、盘符专有目录）、邮箱、手机号。
+
+和原有 E02 的分工：E02 用私有词表管「业务名 / 客户名 / SKU / 内网主机」，只在发布机上跑；`secret_scan.py` 管「凭据形态」，模式公开、CI 与本地都能跑。两者互补，CI 绿不等于 E02 通过，这一点已写进 `docs/20-检测治具.md`。
+
+误报处理写死在脚本里：整行哈希与 `"sha256": "…"` 字段跳过，`127.0.0.1`、`localhost`、`<占位符>`、`example.com` 放行。手机号规则两侧不允许贴字母数字，否则 sha256 里一段 11 位数字就会误报（这条是首跑真踩到的）。
+
+## 2. 发布闸不再把「一条绿」当成「全绿」
+
+`_business/gh_push_gate.py` 等 CI 时原来只取该 sha 的第一条 workflow run。上一版发布时 `guard-meta` 是红的、`build-widget` 是绿的，恰好第一条取到后者，于是打印了 `CI success`，人也被骗过去。
+
+现在：取该 sha 上全部 run（`per_page=50`），先等全部 `completed`，再逐个检查 `conclusion`，任何一个非 success 就 `GATE FAIL: CI 有失败的 workflow：<name>=<conclusion>`；全绿才打印 `CI success on <sha>（workflow 名列表）`。等待上限从 600 s 提到 900 s。
+
+## 3. CI workflow 的源头修正
+
+上一版的 `guard-meta` 之所以红，是因为改了业务仓根的 `.github/workflows/guard.yml`，而导出时会被 `_business/repo_overlay/.github/workflows/guard.yml` 顶掉。远端跑的是没有 `PREPUB_ALLOW_NO_WORDS` 的旧版，E02 在无词表时按设计硬红。
+
+现在两份文件已逐字节对齐（同一份内容两处放），CI 里：`guard_meta` → `secret_scan` → 单测 → `Publish gate (E01-E13)`（`PREPUB_ALLOW_NO_WORDS=1`，注释说明为什么）→ 文档必备文件检查。
+
+## 4. 发布链上补一道同类检查
+
+`gh_push_gate.py` 在 prepublish 之后新增一步：对导出仓跑 `scripts/secret_scan.py`，命中即阻断推送。这样即使有人绕过 CI（直接推分支、或在别的机器上发版），凭据扫描仍然生效。
+
+## 怎么验证
+
+```pwsh
+# 导出仓必须干净；业务树本来就含内部路径，应当有命中（证明规则会亮）
+python -X utf8 _export\repo\scripts\secret_scan.py --root _export\repo    # SECRET_SCAN_RESULT=PASS files=…
+python -X utf8 _export\repo\scripts\secret_scan.py --root .               # SECRET_SCAN_RESULT=FAIL hits=…
+
+python -X utf8 _business\selfcheck.py                                     # SELFCHECK_RESULT=PASS steps=6
+python -X utf8 _business\gh_push_gate.py --version v2.33.3 --dry-run       # 末行 GATE PASS（dry-run）
+```
+
+## 已知未解
+
+- GitHub 的 `secret_scanning_non_provider_patterns` 与 `secret_scanning_validity_checks` 属付费 Secret Protection，本账号不可用，API 会返回 200 但不生效，只能由 `secret_scan.py` + E02 补位。
+- 业务仓仍无 remote，发布只能经 `gh_push_gate.py`；这是设计，不是漏配。
+- 台账与表格的双向缺口（`ITEM_X` 台账有、表里无）等业务确认。
+
 ## v2.33.2 — 2026-11-20
 
-# v2.33.2（未发布草稿，待批准）
-
-> 发布前必须拿到明确批准：`python -X utf8 _business/gh_push_gate.py --message "…" --version v2.33.2 --confirm-publish v2.33.2`
+# v2.33.2
 
 上一版把看板做对了，但「数据对不对」还是靠人眼看。这一版把几处**会静默给出错误数据**的地方改成可判别、可报警，并把发布链加了一道硬闸。
 

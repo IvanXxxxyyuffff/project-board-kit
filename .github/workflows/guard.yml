@@ -15,10 +15,17 @@ jobs:
           python-version: "3.12"
       - name: 元数据守门（IP / 绝对路径 / 令牌 / 邮箱 / 高熵串）
         run: python scripts/guard_meta.py
+      - name: 秘密扫描（通用模式：令牌 / 私钥 / cookie 名 / 内网 IP / 用户目录）
+        run: python scripts/secret_scan.py
       - name: Unit tests (research pure functions)
         run: python -m unittest discover -s tests -v
 
-      - name: Publish gate (E01-E10)
+      # E02 依赖私有词表（业务名/客户名），词表按设计不进仓库：
+      # 公开 CI 里只能显式跳过，E02 只在发布机上由 gh_push_gate 传 PREPUB_LEAK_FILE 时真跑。
+      # 通用模式（令牌/私钥/cookie/内网地址）由上面的 secret_scan.py 覆盖，与 E02 互补。
+      - name: Publish gate (E01-E13)
+        env:
+          PREPUB_ALLOW_NO_WORDS: "1"
         run: python -X utf8 scripts/prepublish_gate.py
       - name: 文档必备文件检查
         run: |

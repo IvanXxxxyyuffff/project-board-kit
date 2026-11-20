@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 pub const DEFAULT_DATA: &str = r"research\widget_data.json";
 pub const DEFAULT_STATE: &str = r"research\widget_state.json";
 pub const DEFAULT_YYNOTE: &str = r"research\yynote_todos.json";
-pub const APP_VERSION: &str = "2.33.2";
+pub const APP_VERSION: &str = "2.33.3";
 pub const DEFAULT_X: i32 = 24;
 pub const DEFAULT_RELOAD_SECS: u32 = 30;
 /// 状态文件默认名（两级目录通用）

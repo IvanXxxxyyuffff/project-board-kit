@@ -182,11 +182,11 @@
       "bytes": 16247
     },
     "files/rust-widget/Cargo.lock": {
-      "sha256": "5e1964579000b5601f429aaaf18ff507d281ffba36b72dcd0475c1f29b59e668",
+      "sha256": "803648e8ec3b6da1340838adf0dde03832baaaf35200d13694a4a2a0cdfa5cef",
       "bytes": 4970
     },
     "files/rust-widget/Cargo.toml": {
-      "sha256": "5c1a818af0674e9e98e152e6b8f54f154db15ad4bd4ebd9211aecbb3a3e36252",
+      "sha256": "82eddf210579fe890f0997cb75c79b1b165d9b5f69dd09c097ed8c81b3e2e080",
       "bytes": 1123
     },
     "files/rust-widget/README.md": {
@@ -214,7 +214,7 @@
       "bytes": 4963
     },
     "files/rust-widget/src/config.rs": {
-      "sha256": "a6d1fba5fb9aade85c3dc18984bea554ea1ea3c00f2dc8e7c0ae7546fa78d4ba",
+      "sha256": "b84b774daea99a655de3d893dcb4dea66b1974323d15ff933559663516491bc2",
       "bytes": 17562
     },
     "files/rust-widget/src/data.rs": {
