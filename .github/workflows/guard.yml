@@ -8,6 +8,10 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    # 本 job 自己会跑 python（单测/门禁）。不设这一条，解释器会在树里留 __pycache__/*.pyc，
+    # 而 E08 是扫文件系统、不只看 git，于是门禁在 CI 上判红、本地却绿（2026-11-20 实测）。
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -23,6 +27,8 @@ jobs:
       # E02 依赖私有词表（业务名/客户名），词表按设计不进仓库：
       # 公开 CI 里只能显式跳过，E02 只在发布机上由 gh_push_gate 传 PREPUB_LEAK_FILE 时真跑。
       # 通用模式（令牌/私钥/cookie/内网地址）由上面的 secret_scan.py 覆盖，与 E02 互补。
+      - name: 清理编译缓存（保险：即便某步漏设环境变量也不把 .pyc 带进门禁）
+        run: find . -type d -name __pycache__ -prune -exec rm -rf {} +
       - name: Publish gate (E01-E13)
         env:
           PREPUB_ALLOW_NO_WORDS: "1"

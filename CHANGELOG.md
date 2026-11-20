@@ -1,3 +1,36 @@
+## v2.33.4 — 2026-11-20
+
+# v2.33.4
+
+修上一版在 CI 上暴露的一个自污染：`guard-meta` 判红，本地却全绿。
+
+## 1. CI 里的 E08 是「自己弄脏自己」
+
+`guard-meta` 这个 job 自己会跑 python（单元测试、门禁脚本）。解释器默认在树里写 `research/__pycache__/*.pyc`、`tests/__pycache__/*.pyc`，而 E08 是扫文件系统、不只看 git，于是门禁看到 5 个 .pyc 就判「编译缓存进了导出仓」。
+
+本地看不见，是因为跑门禁前通常先跑过 `_business/selfcheck.py`，它给子进程设了 `PYTHONDONTWRITEBYTECODE=1`。
+
+## 2. 两处收口
+
+- workflow 的 job 级 `env` 加 `PYTHONDONTWRITEBYTECODE: "1"`，并写清注释（否则下一个人还会踩）。
+- 门禁前加一步 `find . -type d -name __pycache__ -prune -exec rm -rf {} +`，即便将来某步漏设环境变量也不会把 .pyc 带进门禁。
+
+E08 本身不放宽：它该抓的就是「树里有编译缓存或备份残留」，放宽等于放过真问题。
+
+## 怎么验证
+
+```pwsh
+python -X utf8 _business\selfcheck.py                                  # SELFCHECK_RESULT=PASS steps=6
+python -X utf8 _business\gh_push_gate.py --version v2.33.4 --dry-run    # 末行 GATE PASS（dry-run）
+```
+
+CI 侧看 `guard-meta` 的 `Publish gate (E01-E13)` 步骤应为 `PREPUBLISH_RESULT=PASS checks=13 failed=0`。
+
+## 已知未解
+
+- 上一版 `v2.33.3` 的 Release 与 tag 已存在、其 CI 是红的（内容是同一份代码，只是缺这条 workflow 修补）。要不要删掉它由你定，我不动已发布的东西。
+- 付费 Secret Protection 两项仍不可用；业务仓仍无 remote。
+
 ## v2.33.3 — 2026-11-20
 
 # v2.33.3
