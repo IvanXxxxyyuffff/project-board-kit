@@ -1,0 +1,31 @@
+name: guard-meta
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 元数据守门（IP / 绝对路径 / 令牌 / 邮箱 / 高熵串）
+        run: python scripts/guard_meta.py
+      - name: Unit tests (research pure functions)
+        run: python -m unittest discover -s tests -v
+
+      - name: Publish gate (E01-E10)
+        run: python -X utf8 scripts/prepublish_gate.py
+      - name: 文档必备文件检查
+        run: |
+          set -e
+          for f in AGENTS.md README.md CHANGELOG.md \
+                   docs/00-维护手册.md docs/10-模块索引.md docs/20-检测治具.md \
+                   docs/30-更新说明.md docs/40-坑清单.md; do
+            test -f "$f" || { echo "MISSING $f"; exit 1; }
+          done
+          echo "DOCS_OK"

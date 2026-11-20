@@ -1,0 +1,29 @@
+{
+  "_说明": "把这几个值改成你自己的，然后跑 setup.ps1。带 <必填> 的不能留空。",
+  "installRoot": "<ROOT>",
+  "customerPrefix": "CLIENT_A",
+  "_customerPrefix说明": "客户代号前缀：抓取脚本按它识别客户相关页签与群，默认 CLIENT_A；换成你自己的客户代号即可（代码里不再硬编码客户名）。",
+  "emobile": {
+    "host": "<必填：E-Mobile 服务器 IP>",
+    "httpPort": 8999,
+    "wsUrl": "<可选：留空则用 ws://<host>:7070/ws/>",
+    "loginId": "<必填：E-Mobile 登录账号>",
+    "password": "<必填：E-Mobile 登录口令>",
+    "myUserId": "",
+    "authcid": "<myUserId>|c"
+  },
+  "wxwork": {
+    "exe": "<ROOT> (x86)\\WXWork\\WXWork.exe",
+    "commandExe": "<ROOT> (x86)\\WXWork\\WXWorkCommand.exe",
+    "userDataRoot": "<ROOT>\\<用户名>\\Documents\\WXWork",
+    "docT1": "<必填：已立项 项目管理表 的浏览器地址，含 e3_xxx?scode=xxx>",
+    "docT2": "<必填：预立项 项目管理表 的浏览器地址，含 e3_xxx?scode=xxx>"
+  },
+  "schedule": {
+    "dailyPull": "09:05",
+    "dailyReport": "09:10",
+    "weeklyCheckPatch": "FR 09:10"
+  },
+  "node": "<ROOT>\\nodejs\\node.exe",
+  "pwsh": "<ROOT>\\PowerShell\\7\\pwsh.exe"
+}

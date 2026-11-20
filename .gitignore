@@ -1,0 +1,63 @@
+# 数据与产物（体积大 / 含客户数据，绝不进仓库）
+research/raw/
+research/wxdata/
+research/backup/
+research/*.json.bak*
+research/yynote_todos.json
+research/wxwork_cookies.json
+research/api/
+research/*_daily.json
+research/project_chatlog.json
+research/client_preview.json
+research/client_preview.md
+research/*.pdf
+research/CLIENT_A报告.md
+
+# 页面与打包产物（可重建）
+项目数据看板.html
+项目数据看板_生成.html
+项目数据看板_最新.html
+最新项目简报.html
+最新项目简报.md
+每日简报_*.html
+每日简报_*.md
+*.zip
+*.7z
+
+# 构建
+rust-widget/target/
+rust-widget/wxread/target/
+**/*.pdb
+**/*.exe.tmp
+
+# 本地临时
+research/_shot_*
+research/_p_*.png
+research/__pycache__/
+**/__pycache__/
+.pytest_cache/
+Thumbs.db
+desktop.ini
+# 运行日志
+*.log
+moli-serve-*.log
+research/widget_pull.log
+research/unread_live.log
+# 桌面/系统
+*.lnk
+# 数据类（运行时生成，绝不入库）
+research/*.txt
+research/*.csv
+research/*.xlsx
+research/*.json
+!research/config.sample.json
+research/*.html
+research/_raw/
+research/_legacy/
+research/_rv/
+research/_t/
+research/evidence/
+research/*.bak*
+**/*.bak-*
+research/client_preview.*
+research/_preview*
